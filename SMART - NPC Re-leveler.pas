@@ -33,7 +33,7 @@ begin
 	iSmash := 100;
 	
 	// Uncomment to remove Mult flags
-	// SetElementNativeValues(e, 'ACBS\Flags\PC Level Mult');
+	// SetElementNativeValues(e, 'ACBS\Flags\PC Level Mult', '0');
 	// Comment to not skip them, must uncomment above.
 	if GetElementNativeValues(e, 'ACBS\Flags\PC Level Mult') then exit;
 	
