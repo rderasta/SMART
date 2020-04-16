@@ -32,8 +32,11 @@ begin
 	iShiftLvl := 10;
 	iSmash := 100;
 	
-	SetElementNativeValues(e, 'ACBS\Flags\PC Level Mult', '0');
-		
+	// Uncomment to remove Mult flags
+	// SetElementNativeValues(e, 'ACBS\Flags\PC Level Mult');
+	// Comment to not skip them, must uncomment above.
+	if GetElementNativeValues(e, 'ACBS\Flags\PC Level Mult') then exit;
+	
 	// Super scientificly accurate calculation of the stuff, and setting npc's level accordingly
 		if (iSize = '0') then
 			iNewLevel := (((iLevel * iShiftLvl) + ((iHP + iHPOff + iRaceHP) * iClassW)) / iSmash);
