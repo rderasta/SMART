@@ -10,7 +10,7 @@ function Process(e: IInterface): integer;
 
 var
 
- iMult, iHealth, iHealthPlus, iStam, iStamPlus, iMgk, iMgkPlus, iRaceHP, iSize, iClassW, iHP, iHPOff, iNewHP, iLevel, iNewLevel, iShiftLvl, iShiftMult, iLvlCheck, iMaxMult : integer;
+ iRaceHP, iSize, iClassW, iHP, iHPOff, iNewHP, iLevel, iNewLevel, iShiftLvl, iLvlCheck, iMaxMult : integer;
  	
 begin
 
@@ -56,14 +56,15 @@ begin
 	
 	// Sets min/max
 	SetElementNativeValues(e, 'ACBS\Calc min level', 1);
-  	SetElementNativeValues(e, 'ACBS\Calc max level', 0);
+  	SetElementNativeValues(e, 'ACBS\Calc max level', 350);
 	
 	
-	// VERY questionable fix for Unique NPCs with 55k health
-	iMaxMult := 32700;
+	// Fix for Unique NPCs with 55k health
+	iMaxMult := 100;
 	iLvlCheck := GetElementNativeValues(e, 'ACBS\Level Mult');
 		if (iLvlCheck < '0') then
 			SetElementNativeValues(e, 'ACBS\Level Mult',(iMaxMult));
+	
 	
 	if Signature(e) = 'NPC_' then exit;
 
