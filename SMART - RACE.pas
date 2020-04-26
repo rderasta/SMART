@@ -1,5 +1,5 @@
 {
-  Makes changes to RACEs Starting values by SIZE.
+  Boost RACE's Starting values by race SIZE.
   SMART - By Rasta
 }
 unit userscript;
@@ -10,7 +10,7 @@ function Process(e: IInterface): integer;
 
 var
 
-iS, iM, iL, iEL, iCalc, iHealth, iStam, iMgk, iSize : integer;
+iM, iL, iEL, iCalc, iHealth, iStam, iMgk, iSize : integer;
 	
 begin
  Result := 0;
@@ -23,20 +23,19 @@ begin
 	iHealth := GetElementNativeValues(e, 'DATA - DATA\Starting Health');
 	iStam := GetElementNativeValues(e, 'DATA - DATA\Starting Stamina');   	
 	iMgk := GetElementNativeValues(e, 'DATA - DATA\Starting Magicka');	
-	iS := 3;
-	iM := 4;
-	iL := 5;
-	iEL := 6;
+	iM := 2;
+	iL := 3;
+	iEL := 4;
 
 
 	// Ultra calculate the stuff and then apply to each by size
 		if (iSize = '0') then
-			iCalc := ((iHealth + iStam + iMgk) / iS);
+			iCalc := (iHealth + iStam + iMgk);
 				SetElementNativeValues(e, 'DATA - DATA\Starting Health',(iCalc + iHealth));
 				SetElementNativeValues(e, 'DATA - DATA\Starting Stamina',(iCalc + iStam));
 				SetElementNativeValues(e, 'DATA - DATA\Starting Magicka',(iCalc + iMgk));
 		if (iSize = '1') then
-			iCalc := ((iHealth + iStam + iMgk) / iM);
+			iCalc := ((iHealth + iStam + iMgk) / iEL);
 				SetElementNativeValues(e, 'DATA - DATA\Starting Health',(iCalc + iHealth));
 				SetElementNativeValues(e, 'DATA - DATA\Starting Stamina',(iCalc + iStam));
 				SetElementNativeValues(e, 'DATA - DATA\Starting Magicka',(iCalc + iMgk));
@@ -46,7 +45,7 @@ begin
 				SetElementNativeValues(e, 'DATA - DATA\Starting Stamina',(iCalc + iStam));
 				SetElementNativeValues(e, 'DATA - DATA\Starting Magicka',(iCalc + iMgk));
 		if (iSize = '3') then
-			iCalc := ((iHealth + iStam + iMgk) / iEL);
+			iCalc := ((iHealth + iStam + iMgk) / iM);
 				SetElementNativeValues(e, 'DATA - DATA\Starting Health',(iCalc + iHealth));
 				SetElementNativeValues(e, 'DATA - DATA\Starting Stamina',(iCalc + iStam));
 				SetElementNativeValues(e, 'DATA - DATA\Starting Magicka',(iCalc + iMgk));
