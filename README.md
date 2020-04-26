@@ -1,6 +1,3 @@
-# SMART
-Scaling Mod: A Retroactive Treatment
-
 DESCRIPTION
 
 This is a set of xEdit scripts that will:
