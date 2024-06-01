@@ -2,11 +2,11 @@
   Remove NPC negative Offsets
   SMART - By Rasta
 }
-unit userscript;
+unit RemoveOffsets;
 
 uses mteFunctions;
 
-function Process(e: IInterface): integer;
+function ProcessNegativeOffsets(e: IInterface): integer;
 
 var
 
