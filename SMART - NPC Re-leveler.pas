@@ -1,7 +1,7 @@
 {
   Re-calculate NPC Lvl based on its race, size, max level and health.
   SMART - By Rasta
-}
+ }
 unit userscript;
 
 uses mteFunctions;
@@ -12,17 +12,15 @@ var
 
 iSize, iStats, iHPOff, iMOff, iSOff, iHP, iM, iS, iRaceH, iRaceM, iRaceS, iRace, iClassW, iOldLevel, iLevel, iMinLevel, iMaxLevel, iLimitLvl, iLvlCheck, iNewLevel, iSmash : integer;
 
- 
+
 begin
 
  Result := 0;
 
-	
 	// Start NPCs.
-
-
 	if Signature(e) = 'NPC_' then
 	
+	if GetElementNativeValues(e, 'ACBS\Flags\Invulnerable') then exit;
 	
 	// Grabbing stuff to calculate
 	iOldLevel := GetElementNativeValues(e, 'ACBS\Level');
@@ -43,14 +41,13 @@ begin
 	iRace := (iRaceH + iRaceS + iRaceM);
 	iClassW := GetElementNativeValues(LinksTo(ElementBySignature(e, 'CNAM')), 'DATA - DATA\Attribute Weights\Weight #0 (Health)\');
 	iSmash := 100;
-		
-	
+
 	// Uncomment to remove Mult flags
-	 SetElementNativeValues(e, 'ACBS\Flags\PC Level Mult', '0');
+	SetElementNativeValues(e, 'ACBS\Flags\PC Level Mult', '0');
 	// Comment to NOT skip them, must uncomment above.
 	// if GetElementNativeValues(e, 'ACBS\Flags\PC Level Mult') then exit;
-	
-		
+
+
 	// Super scientificly accurate calculation of the stuff, and setting npc's level accordingly
 		if (iSize = '0') then
 			iNewLevel := (((iLevel * iClassW) + iRace + iStats) / iSmash);
@@ -63,23 +60,18 @@ begin
 		if (iSize > '1') then
 			iNewLevel := (((iLevel * iClassW) + (iRace * iSize) + iStats) / iSmash);
 				SetElementNativeValues(e, 'ACBS\Level',(iNewLevel));
-							
-		
+
+
 	// Fix for NPCs with 55k h/m/s
 	iLimitLvl := 500;
 	iLvlCheck := GetElementNativeValues(e, 'ACBS\Level');
 		if (iLvlCheck > iLimitLvl) then
 			SetElementNativeValues(e, 'ACBS\Level',(iLimitLvl));
-			
-	
+
+
 	if Signature(e) = 'NPC_' then exit;
 
-	
-	// End NPCs.
-	
-		
- end;
-
+end;
 
 
 // Cleanup

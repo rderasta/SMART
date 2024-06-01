@@ -11,13 +11,11 @@ function Process(e: IInterface): integer;
 var
 
 iM, iL, iEL, iCalc, iHealth, iStam, iMgk, iSize : integer;
-	
+
 begin
  Result := 0;
- 
+
 	if Signature(e) = 'RACE' then
-	
-	
 	// Grab stuff to calculate
 	iSize := GetElementNativeValues(e, 'DATA - DATA\Size');
 	iHealth := GetElementNativeValues(e, 'DATA - DATA\Starting Health');
@@ -26,14 +24,9 @@ begin
 	iM := 2;
 	iL := 3;
 	iEL := 4;
-
-
-	// Ultra calculate the stuff and then apply to each by size
+	// Calculate the stuff and then apply to each by size
 		if (iSize = '0') then
-			iCalc := (iHealth + iStam + iMgk);
-				SetElementNativeValues(e, 'DATA - DATA\Starting Health',(iCalc + iHealth));
-				SetElementNativeValues(e, 'DATA - DATA\Starting Stamina',(iCalc + iStam));
-				SetElementNativeValues(e, 'DATA - DATA\Starting Magicka',(iCalc + iMgk));
+			exit;
 		if (iSize = '1') then
 			iCalc := ((iHealth + iStam + iMgk) / iEL);
 				SetElementNativeValues(e, 'DATA - DATA\Starting Health',(iCalc + iHealth));
@@ -49,13 +42,10 @@ begin
 				SetElementNativeValues(e, 'DATA - DATA\Starting Health',(iCalc + iHealth));
 				SetElementNativeValues(e, 'DATA - DATA\Starting Stamina',(iCalc + iStam));
 				SetElementNativeValues(e, 'DATA - DATA\Starting Magicka',(iCalc + iMgk));
-			
-				
+
 	if Signature(e) = 'RACE' then exit;
-	
- end;
 
-
+end;
 
 // Cleanup
 function Finalize: integer;
@@ -63,6 +53,6 @@ function Finalize: integer;
 
 		Result := 1;
 
-	end; // end function
+	end;
 
-end. // end script
+end.

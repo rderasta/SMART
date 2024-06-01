@@ -25,7 +25,7 @@ if Signature(e) = 'NPC_' then
 		
 	// Change limit to desired value, 10000 = 10
 	// E.g: 1300 = 1.3
-	iLimit := 6500;
+	iLimit := 2500;
 		iCheckMult := GetElementNativeValues(e, 'ACBS\Level Mult');
 			if iCheckMult > iLimit then
 				SetElementNativeValues(e, 'ACBS\Level Mult',(iLimit));
