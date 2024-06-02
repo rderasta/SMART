@@ -7,9 +7,18 @@ unit DLS_Remove_Offsets;
 
 uses mteFunctions;
 
-function ProcessNegativeOffsets(e: IInterface): integer;
 var
-  iHPOff, iMOff, iSOff: integer;
+  ProcessedCount: Integer;
+
+function Initialize: Integer;
+begin
+  ProcessedCount := 0;
+  Result := 0; // Initialization successful
+end;
+
+function Process(e: IInterface): Integer;
+var
+  iHPOff, iMOff, iSOff: Integer;
 begin
   Result := 0;
 
@@ -22,18 +31,24 @@ begin
     
     // Reset negative offsets to zero
     if iHPOff < 0 then
-      SetElementNativeValues(e, 'ACBS\Health Offset', 0);
+      AddMessage('NPC: ' + EditorID(e) + ' Health Offset < 0');
+      // SetElementNativeValues(e, 'ACBS\Health Offset', 0);
     if iMOff < 0 then
-      SetElementNativeValues(e, 'ACBS\Magicka Offset', 0);
+      AddMessage('NPC: ' + EditorID(e) + ' Magika Offset < 0');
+      // SetElementNativeValues(e, 'ACBS\Magicka Offset', 0);
     if iSOff < 0 then
-      SetElementNativeValues(e, 'ACBS\Stamina Offset', 0);
+      AddMessage('NPC: ' + EditorID(e) + ' Stamina Offset < 0');
+      // SetElementNativeValues(e, 'ACBS\Stamina Offset', 0);
+
+    Inc(ProcessedCount);
   end;
 end;
 
 // Cleanup function
-function Finalize: integer;
+function Finalize: Integer;
 begin
-  Result := 1; // Indicate successful completion
+  AddMessage('Processed ' + IntToStr(ProcessedCount) + ' NPC records.');
+  Result := 0; // Indicate successful completion
 end;
 
 end. // end script

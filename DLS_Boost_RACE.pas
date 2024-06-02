@@ -13,7 +13,6 @@ unit DLS_Boost_RACE;
 
 uses mteFunctions;
 
-
 var
   EDIDs: TStringList;
   NewSizes: TStringList;

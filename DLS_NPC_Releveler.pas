@@ -10,7 +10,7 @@ const
   MAX_NPC_LEVEL = 500; // Maximum allowable NPC level to avoid overflow issues
   HEALTH_DIVISOR = 100; // Constant for dividing the calculated health-based level
 
-function ProcessNPCReLeveler(e: IInterface): integer;
+function Process(e: IInterface): integer;
 var
   iSize, iStats, iHPOff, iMOff, iSOff, iHP, iM, iS, iRaceH, iRaceM, iRaceS, iRace,
   iClassW, iOldLevel, iLevel, iMinLevel, iMaxLevel, iNewLevel: integer;

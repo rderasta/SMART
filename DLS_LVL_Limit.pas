@@ -6,7 +6,7 @@ unit DLS_LVL_Limit;
 
 uses mteFunctions;
 
-function ProcessLimits(e: IInterface): integer;
+function Process(e: IInterface): integer;
 var
   iCheckMult, iLimit: integer;
 begin

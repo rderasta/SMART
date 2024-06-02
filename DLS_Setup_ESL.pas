@@ -6,15 +6,21 @@ unit DLS_Setup_ESL;
 
 const
   FILE_NAME = 'DLS.esp';
+  HEALTH_THRESHOLD = 35000; // Threshold for SKIPPING absurdly OP NPCs
 
 var
   ToFile: IInterface;
   ProcessedCount: Integer;
+  SkippedCount: Integer;
   CurrentPlugin: string;
+  Flags, TemplateFlags: Cardinal;
+  iHP: Integer;
+  EDID: string;
 
 function Initialize: Integer;
 begin
-  ProcessedCount := 0; // Initialize the processed count
+  ProcessedCount := 0;
+  SkippedCount := 0;
   ToFile := SelectFile('Select the target file or create a new one:');
   if not Assigned(ToFile) then
   begin
@@ -31,6 +37,26 @@ begin
   // Skip records with specific Editor IDs
   if GetElementEditValues(e, 'EDID') = 'NoZoneZone' then Exit;
   if GetElementEditValues(e, 'EDID') = 'Player' then Exit;
+
+  EDID := EditorID(e);
+
+  // Skip invulnerable NPCs
+  // Flags := GetElementNativeValues(e, 'ACBS\Flags');
+  // if Flags and 2147483648 <> 0 then
+  // begin
+  //   AddMessage('SKIPPING: invulnerable NPC: ' + EDID);
+  //   Inc(SkippedCount);
+  //   Exit;
+  // end;
+
+  // Skip NPCs with extremely high health
+  iHP := GetElementNativeValues(e, 'DNAM\Health');
+  if iHP >= HEALTH_THRESHOLD then
+  begin
+    AddMessage('SKIPPING: ' + EDID + ' due to absurd stats: HP = ' + IntToStr(iHP));
+    Inc(SkippedCount);
+    Exit;
+  end;
 
   // Track current plugin
   if CurrentPlugin <> GetFileName(GetFile(e)) then
@@ -58,17 +84,18 @@ end;
 function Finalize: Integer;
 begin
   if ProcessedCount > 0 then
+    AddMessage('Skipped ' + IntToStr(SkippedCount) + ' NPC records.');
     AddMessage('Processed ' + IntToStr(ProcessedCount) + ' records from ' + CurrentPlugin);
 
   CleanMasters(ToFile);
 
-  try
-    SetIsESL(ToFile, true);
-    AddMessage('Set ESL flag on ' + GetFileName(ToFile));
-  except
-    on E: Exception do
-      AddMessage('Failed to set ESL flag: ' + E.Message);
-  end;
+  // try
+  //   SetIsESL(ToFile, true);
+  //   AddMessage('Set ESL flag on ' + GetFileName(ToFile));
+  // except
+  //   on E: Exception do
+  //     AddMessage('Failed to set ESL flag: ' + E.Message);
+  // end;
 
   AddMessage('Masters cleaned and script completed.');
   Result := 0;
