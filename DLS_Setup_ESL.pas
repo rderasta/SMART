@@ -1,5 +1,5 @@
 {
-  Copy NPCs, RACEs and Encounter Zones to .els
+  Copy NPCs, RACEs, and Encounter Zones to .esp
   DLS - By Rasta
 }
 unit DLS_Setup_ESL;
@@ -14,6 +14,7 @@ var
 
 function Initialize: Integer;
 begin
+  ProcessedCount := 0; // Initialize the processed count
   ToFile := SelectFile('Select the target file or create a new one:');
   if not Assigned(ToFile) then
   begin
@@ -27,10 +28,11 @@ end;
 
 function Process(e: IInterface): Integer;
 begin
-
+  // Skip records with specific Editor IDs
   if GetElementEditValues(e, 'EDID') = 'NoZoneZone' then Exit;
   if GetElementEditValues(e, 'EDID') = 'Player' then Exit;
 
+  // Track current plugin
   if CurrentPlugin <> GetFileName(GetFile(e)) then
   begin
     if ProcessedCount > 0 then
@@ -39,12 +41,12 @@ begin
     ProcessedCount := 0;
   end;
 
+  // Process NPC, ECZN, and RACE records
   if (Signature(e) = 'NPC_') or (Signature(e) = 'ECZN') or (Signature(e) = 'RACE') then
   begin
     if GetFile(e) <> ToFile then
     begin
-      AutoAddMasters(e, ToFile);
-      AddRequiredElementMasters(e, ToFile, False);
+      AddRequiredElementMasters(e, ToFile, False, True); // Add masters silently
       if Assigned(wbCopyElementToFile(e, ToFile, True, True)) then
         Inc(ProcessedCount);
     end;
@@ -102,34 +104,6 @@ begin
         end;
   finally
     frm.Free;
-  end;
-end;
-
-procedure AutoAddMasters(e, TargetFile: IInterface);
-var
-  MasterFiles: TStringList;
-  i: Integer;
-begin
-  MasterFiles := TStringList.Create;
-  try
-    GetMasters(e, MasterFiles);
-    for i := 0 to MasterFiles.Count - 1 do
-      AddMasterIfMissing(TargetFile, MasterFiles.Strings[i], False);
-  finally
-    MasterFiles.Free;
-  end;
-end;
-
-procedure GetMasters(e: IInterface; var MasterFiles: TStringList);
-var
-  i: Integer;
-  MasterFile: IInterface;
-begin
-  for i := 0 to ReferencedByCount(e) - 1 do
-  begin
-    MasterFile := GetFile(ReferencedByIndex(e, i));
-    if Assigned(MasterFile) and (MasterFiles.IndexOf(GetFileName(MasterFile)) = -1) then
-      MasterFiles.Add(GetFileName(MasterFile));
   end;
 end;
 
