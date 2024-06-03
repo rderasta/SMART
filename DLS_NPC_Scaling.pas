@@ -34,6 +34,17 @@ begin
   if Signature(e) <> 'NPC_' then
     Exit;
 
+  iOldMult := GetElementNativeValues(e, 'ACBS\Level Mult');
+
+  if iOldMult > 0 then
+  begin
+    SetElementNativeValues(e, 'ACBS\Calc min level', 1);
+    SetElementNativeValues(e, 'ACBS\Calc max level', CALC_MAX_LEVEL);
+    AddMessage('INFO: ' + EditorID(e) + ' already has mult. Applied uncap.');
+    Inc(ProcessedCount);
+    Exit;
+  end;
+
   iHP := GetElementNativeValues(e, 'DNAM\Health');
   iHPOff := GetElementNativeValues(e, 'ACBS\Health Offset');
   iMOff := GetElementNativeValues(e, 'ACBS\Magicka Offset');
@@ -52,12 +63,6 @@ begin
   end;
 
   iOldLevel := GetElementNativeValues(e, 'ACBS\Level');
-  iOldMult := GetElementNativeValues(e, 'ACBS\Level Mult');
-
-  if iOldMult > 0 then
-    iLevel := iOldMult div 1000
-  else
-    iLevel := iOldLevel;
 
   iSize := GetElementNativeValues(LinksTo(ElementBySignature(e, 'RNAM')), 'DATA - DATA\Size');
   iRaceH := GetElementNativeValues(LinksTo(ElementBySignature(e, 'RNAM')), 'DATA - DATA\Starting Health');
