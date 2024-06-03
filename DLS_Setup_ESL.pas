@@ -33,6 +33,8 @@ begin
 end;
 
 function Process(e: IInterface): Integer;
+var
+  targetRecord, copiedRecord: IInterface;
 begin
   // Skip records with specific Editor IDs
   if GetElementEditValues(e, 'EDID') = 'NoZoneZone' then Exit;
@@ -73,8 +75,15 @@ begin
     if GetFile(e) <> ToFile then
     begin
       AddRequiredElementMasters(e, ToFile, False, True); // Add masters silently
-      if Assigned(wbCopyElementToFile(e, ToFile, True, True)) then
+      // Check if the record already exists in the target file
+      targetRecord := MainRecordByEditorID(GroupBySignature(ToFile, Signature(e)), EditorID(e));
+      if Assigned(targetRecord) then
+        RemoveElement(GroupBySignature(ToFile, Signature(e)), targetRecord); // Remove existing record if found
+      copiedRecord := wbCopyElementToFile(e, ToFile, False, True);
+      if Assigned(copiedRecord) then
+      begin
         Inc(ProcessedCount);
+      end;
     end;
   end;
 
@@ -84,18 +93,12 @@ end;
 function Finalize: Integer;
 begin
   if ProcessedCount > 0 then
+  begin
     AddMessage('Skipped ' + IntToStr(SkippedCount) + ' NPC records.');
     AddMessage('Processed ' + IntToStr(ProcessedCount) + ' records from ' + CurrentPlugin);
+  end;
 
   CleanMasters(ToFile);
-
-  // try
-  //   SetIsESL(ToFile, true);
-  //   AddMessage('Set ESL flag on ' + GetFileName(ToFile));
-  // except
-  //   on E: Exception do
-  //     AddMessage('Failed to set ESL flag: ' + E.Message);
-  // end;
 
   AddMessage('Masters cleaned and script completed.');
   Result := 0;
@@ -122,7 +125,7 @@ begin
         begin
           if i = 0 then
           begin
-            newFile := AddNewFileName(FILE_NAME, False);
+            newFile := AddNewFileName(FILE_NAME, True);
             Result := newFile;
           end
           else
