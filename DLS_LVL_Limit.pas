@@ -8,7 +8,7 @@ uses mteFunctions;
 
 function Process(e: IInterface): integer;
 var
-  iCheckMult, iLimit: integer;
+  checkMult, limit: integer;
 begin
   Result := 0;
 
@@ -19,12 +19,12 @@ begin
     // SetElementNativeValues(e, 'ACBS\Calc max level', 500);
 
     // Define the maximum allowed multiplier as 2.5 (2500 in terms of game's internal storage, which multiplies actual value by 1000)
-    iLimit := 2500;
-    iCheckMult := GetElementNativeValues(e, 'ACBS\Level Mult');
+    limit := 2500;
+    checkMult := GetElementNativeValues(e, 'ACBS\Level Mult');
 
     // Cap the Level Mult value if it exceeds the defined limit
-    if iCheckMult > iLimit then
-      SetElementNativeValues(e, 'ACBS\Level Mult', iLimit);
+    if checkMult > limit then
+      SetElementNativeValues(e, 'ACBS\Level Mult', limit);
   end;
 end;
 

@@ -1,18 +1,49 @@
-DESCRIPTION
+# NPC Scaling
+This script changes NPC levels by adjusting the level multiplier.
 
-This is a set of xEdit scripts that will:
-Calculate every NPC "strength" and set it to scale with PC with the proper scaling mult.
-There is a re-leveler variant too. (Atm I feel quite satisfied with it's results, but I mostly use it as an utility to run a perk patcher before scaling)
-Re-calculate RACE's stats, based on its own AND size. This will mostly give each race a little boost. (MUST have if using re-scaler script)
-Uncap encounter zones. (Also must have for re-scaler)
+## Description
+
+For each NPC:
+
+* Checks if it already has a level multiplier and adjusts min/max levels if necessary.
+* Calculates new level based on race, class, and stats.
+* Caps new level if it exceeds the maximum allowed multiplier.
+* Applies new level multiplier and updates min/max.
 
 
-What you can expect from the scaling: (estimation to date)
+# Boost RACE's Starting Values by Size
 
-Small creatures such as rabbits, skeevers, etc. can get mults as low as 0.01
-Medium sized creatures such as most humanoids will range widely from 0.5 to 2.0. This is all very relative to each NPC nature.
-Large enemies like snow bears, werewolves, trolls, etc. will likely be around the 2.0 and probably above that too.
-Extra large creatures such as dragons will most likely be above 5 times PC lvl. And probably way beyond that too, but i set a limit to 6.5.
-Bosses like dragon priests, make an exception and will be extremely strong due to the amount of stats assigned to them.
+This script modifies the starting values of races in a game based on their size. Races are categorized into different sizes (Small, Medium, Large, Extra Large) and their starting health, stamina, and magicka values are boosted accordingly.
 
-Note: Results may vary since the formula calculates not only size and race, but also weights in each NPC stats (HMS), so in most scenarios you could predict that bandits will likely have mults below 1.0 and bosses (even a bandit boss) will be at least 2.0 or something cool.
+### Sizes:
+- Small: 0
+- Medium: 1
+- Large: 2
+- Extra Large: 3
+
+## Description
+
+Processes each race to determine its size based on a list of keyword/value.
+
+Boosts the starting health, stamina, and magicka based on the size.
+
+# Uncap Encounter Zones
+This script removes level caps from encounter zones in a game.
+
+For each encounter zone, it:
+
+* Sets the minimum level to 1.
+
+* Sets the maximum level to 0.
+
+* Ensures the "Never Resets" flag is not set.
+
+
+# Setup ESL
+This script copies NPC, RACE, and ECZN records to a specified .esp file, auto add/accepts masters and sets ESL flag.
+
+## Description
+* Skips NPCs with excessively high stats.
+* Ensures only winning overrides are processed.
+* Copies the records to the target .esp file, adding required element masters silently.
+* Cleans up masters and provides a summary of processed and skipped records.

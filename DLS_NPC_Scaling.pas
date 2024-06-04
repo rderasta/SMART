@@ -42,15 +42,6 @@ begin
   health := GetElementNativeValues(e, 'DNAM\Health');
   magicka := GetElementNativeValues(e, 'DNAM\Magicka');
   stamina := GetElementNativeValues(e, 'DNAM\Stamina');
-
-  // Skip NPCs with extremely high stats
-  if (health >= STATS_THRESHOLD) or (magicka >= STATS_THRESHOLD) or (stamina >= STATS_THRESHOLD) then
-  begin
-    AddMessage('SKIPPING: ' + EditorID(e) + ' due to absurd stats: ' + 'HP=' + IntToStr(health) + ' MAG=' + IntToStr(magicka) + ' STA=' + IntToStr(stamina));
-    Inc(SkippedCount);
-    Exit;
-  end;
-
   healthOffset := GetElementNativeValues(e, 'ACBS\Health Offset');
   magickaOff := GetElementNativeValues(e, 'ACBS\Magicka Offset');
   staminaOffset := GetElementNativeValues(e, 'ACBS\Stamina Offset');

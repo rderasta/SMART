@@ -6,7 +6,7 @@ unit DLS_Setup_ESL;
 
 const
   FILE_NAME = 'DLS.esp';
-  HEALTH_THRESHOLD = 35000; // Threshold for SKIPPING absurdly OP NPCs
+  STATS_THRESHOLD = 25000; // Threshold for SKIPPING absurdly OP NPCs
 
 var
   ToFile: IInterface;
@@ -14,7 +14,7 @@ var
   SkippedCount: Integer;
   CurrentPlugin: string;
   Flags, TemplateFlags: Cardinal;
-  iHP: Integer;
+  health, magicka, stamina: Integer;
   EDID: string;
 
 function Initialize: Integer;
@@ -52,24 +52,6 @@ begin
       Exit;
     end;
 
-    // Skip invulnerable NPCs
-    // Flags := GetElementNativeValues(e, 'ACBS\Flags');
-    // if Flags and 2147483648 <> 0 then
-    // begin
-    //   AddMessage('SKIPPING: invulnerable NPC: ' + EDID);
-    //   Inc(SkippedCount);
-    //   Exit;
-    // end;
-
-    // Skip NPCs with extremely high health
-    iHP := GetElementNativeValues(e, 'DNAM\Health');
-    if iHP >= HEALTH_THRESHOLD then
-    begin
-      AddMessage('SKIPPING: ' + EDID + ' due to absurd stats: HP = ' + IntToStr(iHP));
-      Inc(SkippedCount);
-      Exit;
-    end;
-
     // Track current plugin
     if CurrentPlugin <> GetFileName(GetFile(e)) then
     begin
@@ -85,6 +67,30 @@ begin
     // Process NPC, ECZN, and RACE records
     if (Signature(e) = 'NPC_') or (Signature(e) = 'ECZN') or (Signature(e) = 'RACE') then
     begin
+      if (Signature(e) = 'NPC_') then
+      begin
+        // Skip invulnerable NPCs
+        // Flags := GetElementNativeValues(e, 'ACBS\Flags');
+        // if Flags and 2147483648 <> 0 then
+        // begin
+        //   AddMessage('SKIPPING: invulnerable NPC: ' + EDID);
+        //   Inc(SkippedCount);
+        //   Exit;
+        // end;
+
+        // Skip NPCs with extremely high health
+        health := GetElementNativeValues(e, 'DNAM\Health');
+        magicka := GetElementNativeValues(e, 'DNAM\Magicka');
+        stamina := GetElementNativeValues(e, 'DNAM\Stamina');
+
+        // Skip NPCs with extremely high stats
+        if (health >= STATS_THRESHOLD) or (magicka >= STATS_THRESHOLD) or (stamina >= STATS_THRESHOLD) then
+        begin
+          AddMessage('SKIPPING: ' + EditorID(e) + ' due to absurd stats: ' + 'HP=' + IntToStr(health) + ' MAG=' + IntToStr(magicka) + ' STA=' + IntToStr(stamina));
+          Inc(SkippedCount);
+          Exit;
+        end;
+      end;
       if GetFile(e) <> ToFile then
       begin
         AddRequiredElementMasters(e, ToFile, False, True); // Add masters silently

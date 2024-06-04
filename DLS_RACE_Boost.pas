@@ -64,7 +64,7 @@ end;
 
 function Process(e: IInterface): integer;
 var
-  iSize, iHealth, iStam, iMgk, iCalc, newSize: integer;
+  size, health, stam, mgk, boost, newSize: integer;
   EDID: string;
 begin
   Result := 0;
@@ -79,21 +79,21 @@ begin
     AddMessage('Size changed to ' + IntToStr(newSize) + ' for: ' + EDID);
   end;
 
-  iSize := IfThen(newSize >= 0, newSize, GetElementNativeValues(e, 'DATA - DATA\Size'));
-  iHealth := GetElementNativeValues(e, 'DATA\Starting Health');
-  iStam := GetElementNativeValues(e, 'DATA\Starting Stamina');
-  iMgk := GetElementNativeValues(e, 'DATA\Starting Magicka');
+  size := IfThen(newSize >= 0, newSize, GetElementNativeValues(e, 'DATA - DATA\Size'));
+  health := GetElementNativeValues(e, 'DATA\Starting Health');
+  stam := GetElementNativeValues(e, 'DATA\Starting Stamina');
+  mgk := GetElementNativeValues(e, 'DATA\Starting Magicka');
 
-  case iSize of
-    1: iCalc := ((iHealth + iStam + iMgk) div 4);
-    2: iCalc := ((iHealth + iStam + iMgk) div 3);
-    3: iCalc := ((iHealth + iStam + iMgk) div 2);
+  case size of
+    1: boost := ((health + stam + mgk) div 4);
+    2: boost := ((health + stam + mgk) div 3);
+    3: boost := ((health + stam + mgk) div 2);
   end;
 
   // AddMessage('Applying Boost to: ' + EDID);
-  SetElementNativeValues(e, 'DATA\Starting Health', iHealth + iCalc);
-  SetElementNativeValues(e, 'DATA\Starting Stamina', iStam + iCalc);
-  SetElementNativeValues(e, 'DATA\Starting Magicka', iMgk + iCalc);
+  SetElementNativeValues(e, 'DATA\Starting Health', health + boost);
+  SetElementNativeValues(e, 'DATA\Starting Stamina', stam + boost);
+  SetElementNativeValues(e, 'DATA\Starting Magicka', mgk + boost);
 end;
 
 function Finalize: Integer;
