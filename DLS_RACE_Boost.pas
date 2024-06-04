@@ -90,7 +90,7 @@ begin
     3: iCalc := ((iHealth + iStam + iMgk) div 2);
   end;
 
-  AddMessage('Applying Boost to: ' + EDID);
+  // AddMessage('Applying Boost to: ' + EDID);
   SetElementNativeValues(e, 'DATA\Starting Health', iHealth + iCalc);
   SetElementNativeValues(e, 'DATA\Starting Stamina', iStam + iCalc);
   SetElementNativeValues(e, 'DATA\Starting Magicka', iMgk + iCalc);

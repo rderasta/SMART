@@ -1,9 +1,3 @@
-{
-  Script Name: ReScaleNPCLevel
-  Description: Recalculates the level of NPC based on their race, size, and stats. NPCs levels will scale dynamically.
-  Author: Rasta
-  Version: 1.0
-}
 unit DLS_NPC_Scaling;
 
 uses mteFunctions;
@@ -12,7 +6,7 @@ const
   MAX_LEVEL_MULTIPLIER = 2500; // 2500 = 2.5 -> Max multiplier: PlayerLvl x 2.5
   CALC_MAX_LEVEL = 5000; // Max LVL an NPC can actually have. 0 might be uncapped.
   STATS_THRESHOLD = 35000; // Threshold for SKIPPING absurdly OP NPCs
-
+  DEBUG = True; // Wanna see a bunch of numbers?
 var
   ProcessedCount: Integer;
   SkippedCount: Integer;
@@ -26,8 +20,8 @@ end;
 
 function Process(e: IInterface): Integer;
 var
-  Flags, TemplateFlags: Cardinal;
-  size, sum_stats, healthOffset, magickaOff, staminaOffset, health, magicka, stamina, raceHealth, raceMagicka, raceStamina, sum_raceStats, classWeight, oldLevel, oldMult, newLevel: Integer;
+  Flags: Cardinal;
+  size, sum_stats, healthOffset, magickaOff, staminaOffset, health, magicka, stamina, raceHealth, raceMagicka, raceStamina, sum_raceStats, classHealthWeight, oldLevel, oldMult, newLevel: Integer;
 begin
   Result := 0;
 
@@ -45,15 +39,6 @@ begin
     Exit;
   end;
 
-  // Skip invulnerable NPCs
-  // Flags := GetElementNativeValues(e, 'ACBS\Flags');
-  // if Flags and 2147483648 <> 0 then
-  // begin
-  //   AddMessage('SKIPPING: invulnerable NPC: ' + EDID);
-  //   Inc(SkippedCount);
-  //   Exit;
-  // end;
-
   health := GetElementNativeValues(e, 'DNAM\Health');
   magicka := GetElementNativeValues(e, 'DNAM\Magicka');
   stamina := GetElementNativeValues(e, 'DNAM\Stamina');
@@ -61,11 +46,10 @@ begin
   // Skip NPCs with extremely high stats
   if (health >= STATS_THRESHOLD) or (magicka >= STATS_THRESHOLD) or (stamina >= STATS_THRESHOLD) then
   begin
-    AddMessage('SKIPPING: ' + EDID + ' due to absurd stats: ' + 'HP=' + IntToStr(health) + ' MAG=' + IntToStr(magicka) + ' STA=' + IntToStr(stamina));
+    AddMessage('SKIPPING: ' + EditorID(e) + ' due to absurd stats: ' + 'HP=' + IntToStr(health) + ' MAG=' + IntToStr(magicka) + ' STA=' + IntToStr(stamina));
     Inc(SkippedCount);
     Exit;
   end;
-
 
   healthOffset := GetElementNativeValues(e, 'ACBS\Health Offset');
   magickaOff := GetElementNativeValues(e, 'ACBS\Magicka Offset');
@@ -75,7 +59,7 @@ begin
   if sum_stats < 0 then
   begin
     AddMessage('WARNING: Found potential bug on NPC ' + EditorID(e) + ', sum of Stats is Negative = ' + IntToStr(sum_stats));
-    AddMessage('If you want to include this NPC try running DLS_Remove_Offsets first.');
+    AddMessage('INFO: If you want to include this NPC try running DLS_Remove_Offsets first.');
     AddMessage('SKIPPING: ' + EditorID(e) + '...');
     Inc(SkippedCount);
     Exit;
@@ -87,26 +71,42 @@ begin
   raceMagicka := GetElementNativeValues(LinksTo(ElementBySignature(e, 'RNAM')), 'DATA - DATA\Starting Magicka');
   raceStamina := GetElementNativeValues(LinksTo(ElementBySignature(e, 'RNAM')), 'DATA - DATA\Starting Stamina');
   sum_raceStats := raceHealth + raceMagicka + raceStamina;
-  classWeight := GetElementNativeValues(LinksTo(ElementBySignature(e, 'CNAM')), 'DATA - DATA\Attribute Weights\Weight #0 (Health)');
+  classHealthWeight := GetElementNativeValues(LinksTo(ElementBySignature(e, 'CNAM')), 'DATA - DATA\Attribute Weights\Weight #0 (Health)');
+
+  if DEBUG then
+  begin
+    AddMessage('DEBUG: ' + EditorID(e) + ' ------------------------------------------------------------------------------------------------------- ');
+    AddMessage('DEBUG: Initial Stats -> Health: ' + IntToStr(health) + ' Magicka: ' + IntToStr(magicka) + ' Stamina: ' + IntToStr(stamina));
+    AddMessage('DEBUG: Offsets -> Health Offset: ' + IntToStr(healthOffset) + ' Magicka Offset: ' + IntToStr(magickaOff) + ' Stamina Offset: ' + IntToStr(staminaOffset));
+    AddMessage('DEBUG: Sum of Stats: ' + IntToStr(sum_stats));
+    AddMessage('DEBUG: Race Stats -> Health: ' + IntToStr(raceHealth) + ' Magicka: ' + IntToStr(raceMagicka) + ' Stamina: ' + IntToStr(raceStamina));
+    AddMessage('DEBUG: Class Weight: ' + IntToStr(classHealthWeight));
+    AddMessage('DEBUG: Size: ' + IntToStr(size));
+  end;
 
   SetElementNativeValues(e, 'ACBS\Flags', GetElementNativeValues(e, 'ACBS\Flags') or 16);
   SetElementNativeValues(e, 'ACBS\Flags', GetElementNativeValues(e, 'ACBS\Flags') or 128);
 
   // Calculate new level based on formula and apply flags
   case size of
-    0: newLevel := (oldLevel * classWeight) + sum_raceStats + sum_stats;
-    1: newLevel := (oldLevel * classWeight) + sum_raceStats + sum_raceStats + sum_stats;
-    else newLevel := (oldLevel * classWeight * size) + sum_raceStats + sum_stats;
+    0: newLevel := (oldLevel * classHealthWeight) + sum_raceStats + sum_stats;
+    1: newLevel := (oldLevel * classHealthWeight) + sum_raceStats + sum_raceStats + sum_stats;
+    else newLevel := (oldLevel * classHealthWeight * size) + sum_raceStats + sum_stats;
   end;
 
+  AddMessage('DEBUG: Calculated New Level: ' + IntToStr(newLevel));
+
   if newLevel > MAX_LEVEL_MULTIPLIER then
+  begin
+    AddMessage('NOTICE: Capping ' + EditorID(e) + ' calculated above MAX ' + IntToStr(newLevel));
     newLevel := MAX_LEVEL_MULTIPLIER;
-  
+  end;
+
   if newLevel < 0 then
   begin
-    AddMessage('WARNING: Found potential bug on NPC ' + EditorID(e) + ', HP = ' + IntToStr(health));
-    AddMessage('The calculated mult would be ' + IntToStr(newLevel));
-    AddMessage('Try lowering the STATS_THRESHOLD below ' + IntToStr(health));
+    AddMessage('WARNING: Found potential bug on NPC ' + EditorID(e) + ', HP=' + IntToStr(health) + ' MAG=' + IntToStr(magicka) + ' STA=' + IntToStr(stamina));
+    AddMessage('INFO: The calculated mult would be ' + IntToStr(newLevel));
+    AddMessage('INFO: Try lowering the STATS_THRESHOLD below ' + IntToStr(health));
     AddMessage('SKIPPING: ' + EditorID(e) + '...');
     Inc(SkippedCount);
     Exit;
