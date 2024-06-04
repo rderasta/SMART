@@ -1,5 +1,5 @@
 # NPC Scaling
-This script changes NPC levels by adjusting the level multiplier.
+This script changes NPC levels by adjusting the level multiplier (based on NPC stats and RACE stats and size).
 
 ## Description
 
@@ -13,22 +13,16 @@ For each NPC:
 
 # Boost RACE's Starting Values by Size
 
-This script modifies the starting values of races in a game based on their size. Races are categorized into different sizes (Small, Medium, Large, Extra Large) and their starting health, stamina, and magicka values are boosted accordingly.
-
-### Sizes:
-- Small: 0
-- Medium: 1
-- Large: 2
-- Extra Large: 3
+This script modifies the races size and the starting values of races (based on their size). 
 
 ## Description
 
-Processes each race to determine its size based on a list of keyword/value.
+* Processes each race to determine its size based on a list of keyword/value.
 
-Boosts the starting health, stamina, and magicka based on the size.
+* Boosts the starting health, stamina, and magicka based on the size.
 
 # Uncap Encounter Zones
-This script removes level caps from encounter zones in a game.
+This script removes level caps from encounter zones.
 
 For each encounter zone, it:
 
