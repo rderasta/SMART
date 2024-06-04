@@ -11,7 +11,7 @@ uses mteFunctions;
 const
   MAX_LEVEL_MULTIPLIER = 2500; // 2500 = 2.5 -> Max multiplier: PlayerLvl x 2.5
   CALC_MAX_LEVEL = 5000; // Max LVL an NPC can actually have. 0 might be uncapped.
-  HEALTH_THRESHOLD = 35000; // Threshold for SKIPPING absurdly OP NPCs
+  STATS_THRESHOLD = 35000; // Threshold for SKIPPING absurdly OP NPCs
 
 var
   ProcessedCount: Integer;
@@ -27,16 +27,16 @@ end;
 function Process(e: IInterface): Integer;
 var
   Flags, TemplateFlags: Cardinal;
-  iSize, iStats, iHPOff, iMOff, iSOff, iHP, iM, iS, iRaceH, iRaceM, iRaceS, iRace, iClassW, iOldLevel, iOldMult, iLevel, iMinLevel, iMaxLevel, iNewLevel: Integer;
+  size, sum_stats, healthOffset, magickaOff, staminaOffset, health, magicka, stamina, raceHealth, raceMagicka, raceStamina, sum_raceStats, classWeight, oldLevel, oldMult, newLevel: Integer;
 begin
   Result := 0;
 
   if Signature(e) <> 'NPC_' then
     Exit;
 
-  iOldMult := GetElementNativeValues(e, 'ACBS\Level Mult');
+  oldMult := GetElementNativeValues(e, 'ACBS\Level Mult');
 
-  if iOldMult > 0 then
+  if oldMult > 0 then
   begin
     SetElementNativeValues(e, 'ACBS\Calc min level', 1);
     SetElementNativeValues(e, 'ACBS\Calc max level', CALC_MAX_LEVEL);
@@ -45,60 +45,79 @@ begin
     Exit;
   end;
 
-  iHP := GetElementNativeValues(e, 'DNAM\Health');
-  iHPOff := GetElementNativeValues(e, 'ACBS\Health Offset');
-  iMOff := GetElementNativeValues(e, 'ACBS\Magicka Offset');
-  iSOff := GetElementNativeValues(e, 'ACBS\Stamina Offset');
-  iM := GetElementNativeValues(e, 'DNAM\Magicka');
-  iS := GetElementNativeValues(e, 'DNAM\Stamina');
-  iStats := iHPOff + iMOff + iSOff + iHP + iM + iS;
+  // Skip invulnerable NPCs
+  // Flags := GetElementNativeValues(e, 'ACBS\Flags');
+  // if Flags and 2147483648 <> 0 then
+  // begin
+  //   AddMessage('SKIPPING: invulnerable NPC: ' + EDID);
+  //   Inc(SkippedCount);
+  //   Exit;
+  // end;
 
-  if iStats < 0 then
+  health := GetElementNativeValues(e, 'DNAM\Health');
+  magicka := GetElementNativeValues(e, 'DNAM\Magicka');
+  stamina := GetElementNativeValues(e, 'DNAM\Stamina');
+
+  // Skip NPCs with extremely high stats
+  if (health >= STATS_THRESHOLD) or (magicka >= STATS_THRESHOLD) or (stamina >= STATS_THRESHOLD) then
   begin
-    AddMessage('WARNING: Found potential bug on NPC ' + EditorID(e) + ', sum of Stats is Negative = ' + IntToStr(iStats));
+    AddMessage('SKIPPING: ' + EDID + ' due to absurd stats: ' + 'HP=' + IntToStr(health) + ' MAG=' + IntToStr(magicka) + ' STA=' + IntToStr(stamina));
+    Inc(SkippedCount);
+    Exit;
+  end;
+
+
+  healthOffset := GetElementNativeValues(e, 'ACBS\Health Offset');
+  magickaOff := GetElementNativeValues(e, 'ACBS\Magicka Offset');
+  staminaOffset := GetElementNativeValues(e, 'ACBS\Stamina Offset');
+  sum_stats := healthOffset + magickaOff + staminaOffset + health + magicka + stamina;
+
+  if sum_stats < 0 then
+  begin
+    AddMessage('WARNING: Found potential bug on NPC ' + EditorID(e) + ', sum of Stats is Negative = ' + IntToStr(sum_stats));
     AddMessage('If you want to include this NPC try running DLS_Remove_Offsets first.');
     AddMessage('SKIPPING: ' + EditorID(e) + '...');
     Inc(SkippedCount);
     Exit;
   end;
 
-  iOldLevel := GetElementNativeValues(e, 'ACBS\Level');
-  iSize := GetElementNativeValues(LinksTo(ElementBySignature(e, 'RNAM')), 'DATA - DATA\Size');
-  iRaceH := GetElementNativeValues(LinksTo(ElementBySignature(e, 'RNAM')), 'DATA - DATA\Starting Health');
-  iRaceM := GetElementNativeValues(LinksTo(ElementBySignature(e, 'RNAM')), 'DATA - DATA\Starting Magicka');
-  iRaceS := GetElementNativeValues(LinksTo(ElementBySignature(e, 'RNAM')), 'DATA - DATA\Starting Stamina');
-  iRace := iRaceH + iRaceM + iRaceS;
-  iClassW := GetElementNativeValues(LinksTo(ElementBySignature(e, 'CNAM')), 'DATA - DATA\Attribute Weights\Weight #0 (Health)');
+  oldLevel := GetElementNativeValues(e, 'ACBS\Level');
+  size := GetElementNativeValues(LinksTo(ElementBySignature(e, 'RNAM')), 'DATA - DATA\Size');
+  raceHealth := GetElementNativeValues(LinksTo(ElementBySignature(e, 'RNAM')), 'DATA - DATA\Starting Health');
+  raceMagicka := GetElementNativeValues(LinksTo(ElementBySignature(e, 'RNAM')), 'DATA - DATA\Starting Magicka');
+  raceStamina := GetElementNativeValues(LinksTo(ElementBySignature(e, 'RNAM')), 'DATA - DATA\Starting Stamina');
+  sum_raceStats := raceHealth + raceMagicka + raceStamina;
+  classWeight := GetElementNativeValues(LinksTo(ElementBySignature(e, 'CNAM')), 'DATA - DATA\Attribute Weights\Weight #0 (Health)');
 
   SetElementNativeValues(e, 'ACBS\Flags', GetElementNativeValues(e, 'ACBS\Flags') or 16);
   SetElementNativeValues(e, 'ACBS\Flags', GetElementNativeValues(e, 'ACBS\Flags') or 128);
 
   // Calculate new level based on formula and apply flags
-  case iSize of
-    0: iNewLevel := (iOldLevel * iClassW) + iRace + iStats;
-    1: iNewLevel := (iOldLevel * iClassW) + iRace + iRace + iStats;
-    else iNewLevel := (iOldLevel * iClassW * iSize) + iRace + iStats;
+  case size of
+    0: newLevel := (oldLevel * classWeight) + sum_raceStats + sum_stats;
+    1: newLevel := (oldLevel * classWeight) + sum_raceStats + sum_raceStats + sum_stats;
+    else newLevel := (oldLevel * classWeight * size) + sum_raceStats + sum_stats;
   end;
 
-  if iNewLevel > MAX_LEVEL_MULTIPLIER then
-    iNewLevel := MAX_LEVEL_MULTIPLIER;
+  if newLevel > MAX_LEVEL_MULTIPLIER then
+    newLevel := MAX_LEVEL_MULTIPLIER;
   
-  if iNewLevel < 0 then
+  if newLevel < 0 then
   begin
-    AddMessage('WARNING: Found potential bug on NPC ' + EditorID(e) + ', HP = ' + IntToStr(iHP));
-    AddMessage('The calculated mult would be ' + IntToStr(iNewLevel));
-    AddMessage('Try lowering the HEALTH_THRESHOLD below ' + IntToStr(iHP));
+    AddMessage('WARNING: Found potential bug on NPC ' + EditorID(e) + ', HP = ' + IntToStr(health));
+    AddMessage('The calculated mult would be ' + IntToStr(newLevel));
+    AddMessage('Try lowering the STATS_THRESHOLD below ' + IntToStr(health));
     AddMessage('SKIPPING: ' + EditorID(e) + '...');
     Inc(SkippedCount);
     Exit;
   end;
 
-  SetElementNativeValues(e, 'ACBS\Level Mult', iNewLevel);
+  SetElementNativeValues(e, 'ACBS\Level Mult', newLevel);
   SetElementNativeValues(e, 'ACBS\Calc min level', 1);
   SetElementNativeValues(e, 'ACBS\Calc max level', CALC_MAX_LEVEL);
 
-  AddMessage('INFO: ' + EditorID(e) + ' Old Level: ' + IntToStr(iOldLevel));
-  AddMessage('INFO: ' + EditorID(e) + ' New Level Mult: ' + IntToStr(iNewLevel));
+  AddMessage('INFO: ' + EditorID(e) + ' Old Level: ' + IntToStr(oldLevel));
+  AddMessage('INFO: ' + EditorID(e) + ' New Level Mult: ' + IntToStr(newLevel));
   Inc(ProcessedCount);
 end;
 
