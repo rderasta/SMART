@@ -63,7 +63,6 @@ begin
   end;
 
   iOldLevel := GetElementNativeValues(e, 'ACBS\Level');
-
   iSize := GetElementNativeValues(LinksTo(ElementBySignature(e, 'RNAM')), 'DATA - DATA\Size');
   iRaceH := GetElementNativeValues(LinksTo(ElementBySignature(e, 'RNAM')), 'DATA - DATA\Starting Health');
   iRaceM := GetElementNativeValues(LinksTo(ElementBySignature(e, 'RNAM')), 'DATA - DATA\Starting Magicka');
@@ -76,9 +75,9 @@ begin
 
   // Calculate new level based on formula and apply flags
   case iSize of
-    0: iNewLevel := (iLevel * iClassW) + iRace + iStats;
-    1: iNewLevel := (iLevel * iClassW) + iRace + iRace + iStats;
-    else iNewLevel := (iLevel * iClassW * iSize) + iRace + iStats;
+    0: iNewLevel := (iOldLevel * iClassW) + iRace + iStats;
+    1: iNewLevel := (iOldLevel * iClassW) + iRace + iRace + iStats;
+    else iNewLevel := (iOldLevel * iClassW * iSize) + iRace + iStats;
   end;
 
   if iNewLevel > MAX_LEVEL_MULTIPLIER then
