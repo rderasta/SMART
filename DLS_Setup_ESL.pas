@@ -8,7 +8,7 @@
 unit DLS_Setup_ESL;
 
 const
-  FILE_NAME = 'DLS.esp';
+  FILE_NAME = 'DynamicLevelScaling.esp';
   STATS_THRESHOLD = 25000; // Threshold for SKIPPING absurdly OP NPCs
 
 var
