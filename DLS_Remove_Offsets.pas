@@ -1,7 +1,7 @@
 {
   Remove NPC negative Offsets
-  Description: Sets any negative offsets for Health, Magicka, and Stamina to zero for NPCs in Skyrim.
-  SMART - By Rasta
+  Sets any negative offsets for Health, Magicka, and Stamina to zero for NPCs in Skyrim.
+  By Rasta
 }
 unit DLS_Remove_Offsets;
 

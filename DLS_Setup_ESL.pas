@@ -1,6 +1,9 @@
 {
   Copy NPCs, RACEs, and Encounter Zones to .esp
-  DLS - By Rasta
+  Auto-accepts masters.
+  Copies winning overrides.
+  Ignores: Deleted flags, NoZoneZone, Player, NPCs with extremely high stats.
+  By Rasta
 }
 unit DLS_Setup_ESL;
 
@@ -61,11 +64,13 @@ begin
       ProcessedCount := 0;
     end;
 
-    // Only process winning overrides
-    if not IsWinningOverride(e) then Exit;
 
     // Process NPC, ECZN, and RACE records
     if (Signature(e) = 'NPC_') or (Signature(e) = 'ECZN') or (Signature(e) = 'RACE') then
+
+    // Only process winning overrides
+    if not IsWinningOverride(e) then Exit;
+
     begin
       if (Signature(e) = 'NPC_') then
       begin
@@ -78,18 +83,17 @@ begin
         //   Exit;
         // end;
 
-        // Skip NPCs with extremely high health
+        // Skip NPCs with extremely high stats
         health := GetElementNativeValues(e, 'DNAM\Health');
         magicka := GetElementNativeValues(e, 'DNAM\Magicka');
         stamina := GetElementNativeValues(e, 'DNAM\Stamina');
-
-        // Skip NPCs with extremely high stats
         if (health >= STATS_THRESHOLD) or (magicka >= STATS_THRESHOLD) or (stamina >= STATS_THRESHOLD) then
         begin
           AddMessage('SKIPPING: ' + EditorID(e) + ' due to absurd stats: ' + 'HP=' + IntToStr(health) + ' MAG=' + IntToStr(magicka) + ' STA=' + IntToStr(stamina));
           Inc(SkippedCount);
           Exit;
         end;
+
       end;
       if GetFile(e) <> ToFile then
       begin

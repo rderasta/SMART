@@ -1,6 +1,6 @@
 {
   Checks for Level Multiplier (Level Mult) in NPC records and caps it if it exceeds a specified limit.
-  Skyrim Scaled Uncapped - By Rasta
+  By Rasta
 }
 unit DLS_LVL_Limit;
 

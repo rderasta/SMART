@@ -1,5 +1,5 @@
 {
-  Uncapp Encounter Zones
+  Uncapp Encounter Zones and sets 'Never Reset' to 0.
   By Rasta
 }
 unit DLS_Uncapp_ECZN;

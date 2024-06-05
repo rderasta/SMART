@@ -1,6 +1,7 @@
 {
   Boost RACE's Starting values by race SIZE.
-  SMART - By Rasta
+  Modifies SIZE of races matching to a list of keyword/value.
+  By Rasta
 
   Sizes:
     Small: 0
@@ -19,18 +20,11 @@ var
 function Initialize: Integer;
 begin
   SizeMap := TStringList.Create;
-  SizeMap.Values['Fox'] := '0';
-  SizeMap.Values['Rat'] := '0';
-  SizeMap.Values['Hare'] := '0';
-  SizeMap.Values['Wisp'] := '0';
-  SizeMap.Values['Child'] := '0';
-  SizeMap.Values['Wraith'] := '0';
-  SizeMap.Values['Chicken'] := '0';
-  SizeMap.Values['Slaughterfish'] := '0';
+  SizeMap.Values['Giant'] := '3';
+  SizeMap.Values['Large'] := '2';
   SizeMap.Values['Bear'] := '2';
   SizeMap.Values['Lion'] := '2';
   SizeMap.Values['Troll'] := '2';
-  SizeMap.Values['Large'] := '2';
   SizeMap.Values['Reaper'] := '2';
   SizeMap.Values['Matron'] := '2';
   SizeMap.Values['SabreCat'] := '2';
@@ -40,7 +34,14 @@ begin
   SizeMap.Values['Spriggan'] := '2';
   SizeMap.Values['EarthMother'] := '2';
   SizeMap.Values['ChaurusHunter'] := '2';
-  SizeMap.Values['Giant'] := '3';
+  SizeMap.Values['Fox'] := '0';
+  SizeMap.Values['Rat'] := '0';
+  SizeMap.Values['Hare'] := '0';
+  SizeMap.Values['Wisp'] := '0';
+  SizeMap.Values['Child'] := '0';
+  SizeMap.Values['Wraith'] := '0';
+  SizeMap.Values['Chicken'] := '0';
+  SizeMap.Values['Slaughterfish'] := '0';
 
   Result := 0;
 end;

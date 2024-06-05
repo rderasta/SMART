@@ -1,11 +1,17 @@
+{
+  Re-calculate NPC Lvl based on its race, size, level and stats.
+  Sets NPC level mult flag and sets the mult to the calculated value.
+  Ignores: already has mult.
+  By Rasta
+}
 unit DLS_NPC_Scaling;
 
 uses mteFunctions;
 
 const
   MAX_LEVEL_MULTIPLIER = 2500; // 2500 = 2.5 -> Max multiplier: PlayerLvl x 2.5
-  CALC_MAX_LEVEL = 5000; // Max LVL an NPC can actually have. 0 might be uncapped.
-  STATS_THRESHOLD = 35000; // Threshold for SKIPPING absurdly OP NPCs
+  CALC_MAX_LEVEL = 0; // Max LVL an NPC can actually have. 0 = uncapped.
+  STATS_THRESHOLD = 25000; // Threshold for SKIPPING absurdly OP NPCs
   DEBUG = True; // Wanna see a bunch of numbers?
 var
   ProcessedCount: Integer;
@@ -69,10 +75,10 @@ begin
     AddMessage('DEBUG: ' + EditorID(e) + ' ------------------------------------------------------------------------------------------------------- ');
     AddMessage('DEBUG: Initial Stats -> Health: ' + IntToStr(health) + ' Magicka: ' + IntToStr(magicka) + ' Stamina: ' + IntToStr(stamina));
     AddMessage('DEBUG: Offsets -> Health Offset: ' + IntToStr(healthOffset) + ' Magicka Offset: ' + IntToStr(magickaOff) + ' Stamina Offset: ' + IntToStr(staminaOffset));
-    AddMessage('DEBUG: Sum of Stats: ' + IntToStr(sum_stats));
+    AddMessage('DEBUG: Sum of Stats = ' + IntToStr(sum_stats));
     AddMessage('DEBUG: Race Stats -> Health: ' + IntToStr(raceHealth) + ' Magicka: ' + IntToStr(raceMagicka) + ' Stamina: ' + IntToStr(raceStamina));
-    AddMessage('DEBUG: Class Weight: ' + IntToStr(classHealthWeight));
-    AddMessage('DEBUG: Size: ' + IntToStr(size));
+    AddMessage('DEBUG: Race Size: ' + IntToStr(size));
+    AddMessage('DEBUG: Class Health Weight: ' + IntToStr(classHealthWeight));
   end;
 
   SetElementNativeValues(e, 'ACBS\Flags', GetElementNativeValues(e, 'ACBS\Flags') or 16);
